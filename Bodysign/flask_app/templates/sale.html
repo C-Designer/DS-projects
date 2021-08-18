@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Sales List
+{% endblock %}
+
+{% block lead %}
+계약 수업 조회, 추가 및 삭제하는 페이지입니다.
+{% endblock %}
+
+{% block main_body %}
+{% if trainers %}
+<form method="POST" action="/api/sale/">
+  <div class="input-group mb-3">
+    <input name="member_id" class="form-control" type="number" placeholder="회원 번호" required>
+    <select name="is_sale" class="form-control" id="inputGroupSelect01">
+      <option value=0>Miss</option>
+      <option value=1>Success</option>
+    </select>
+    <select name="trainer_name" class="form-control" id="inputGroupSelect01">
+      {% for trainer in trainers %}
+      <option value= {{ trainer.name }} > {{ trainer.name }} </option>
+      {% endfor %}
+    </select>
+    <input type="submit" class="btn btn-secondary" value="추가">
+  </div>
+</form>
+
+<form method="POST" action="/sale/search/">
+  <div class="input-group mb-3">
+    <span class="input-group-text" id="basic-addon1">트레이너 조회</span>
+    <select name="trainer_name" class="form-control" id="inputGroupSelect01">
+      {% for trainer in trainers %}
+      <option value= {{ trainer.name }} > {{ trainer.name }} </option>
+      {% endfor %}
+    </select>
+    <input type="submit" class="btn btn-secondary" value="검색">
+  </div>
+</form>
+{% endif %}
+
+{% if sales %}
+<hr>
+<table class="table table-sm text-center table-hover" style="border-bottom: 1px solid darkgray;">
+  <caption>{{ (sales.page -1) * sales.per_page + 1}} - {{ sales.page * sales.per_page }} sales in total {{ sales.total }}</caption>
+  <thead class="table-secondary">
+      <tr>
+        <th scope="col">트레이너</th>
+        <th scope="col">계약 유무</th>
+        <th scope="col">회원 코드</th>
+        <th scope="col" style="border-left: 2px solid darkgray;">🗑</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for sale in sales.items %}
+      <tr>
+        <th>
+          {{ sale.trainer_name }}
+        </th>
+        {% if sale.is_sale == 0 %}
+        <td>Miss</td>
+        {% else %}
+        <td>Success</td>
+        {% endif %}
+        <td>
+          {{ sale.member_id }}
+        </td>
+        <td style="border-left: 2px solid darkgray;">
+          <a class="btn btn-outline-dark btn-sm", href='/api/sale/{{ sale.id }}'>
+            Delete
+          </a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <!-- Pagination Links-->
+  <div class="text-right">
+    <a href="{{ url_for('main.sale_index', page=sales.prev_num) }}"
+       class="btn btn-outline-dark 
+       {% if sales.page == 1 %}disabled{% endif %}">
+        &laquo;
+    </a>
+  <!-- Loop through the number of pages to display a link for each-->
+    {% for page_num in sales.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+  {% if page_num %}
+  <!-- Check for the active page and set the link to "Active"-->
+            {% if sales.page == page_num %}
+            <a href="{{ url_for('main.sale_index', page=page_num) }}"
+               class="btn btn-dark">
+                {{ page_num }}
+            </a>
+            {% else %}
+            <a href="{{ url_for('main.sale_index', page=page_num) }}"
+               class="btn btn-outline-dark">
+                {{ page_num }}
+            </a>
+            {% endif %}
+        {% else %}
+            ...
+        {% endif %}
+    {% endfor %}
+    <a href="{{ url_for('main.sale_index', page=sales.next_num) }}"
+       class="btn btn-outline-dark 
+       {% if sales.page == sales.pages %}disabled{% endif %}">
+        &raquo;
+    </a>
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}

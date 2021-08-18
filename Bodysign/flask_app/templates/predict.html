@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+
+{% block title  %}
+Prediction
+{% endblock  %}
+
+{% block lead  %}
+회원의 계약 난이도 및 매칭 성공율을 예측하는 페이지입니다.
+{% endblock  %}
+
+{% block main_body  %}
+
+<hr>
+<a href="/api/learning"><input type="submit" class="btn btn-secondary" value="데이터 최신화"></a>
+<br>
+<br>
+<form method="POST" action="/api/pred">
+    <div class="input-group mb-3">
+        <input name="member_id" class="form-control" type="number" placeholder="회원 번호" required>
+        <input type="submit" class="btn btn-outline-secondary" value="pred">
+    </div>
+</form>
+
+<hr>
+{% if prediction %}
+계약 난이도 : {{ prediction }}
+{% endif %}
+
+{% if trainers %}
+<table class="table table-sm text-center table-hover" style="border-bottom: 1px solid darkgray;">
+  <thead class="table-secondary">
+      <tr>
+        <th scope="col">순위</th>
+        <th scope="col" style="border-left: 2px solid darkgray;">트레이너</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for trainer in trainers %}
+        <tr>
+            <td>{{ loop.index }}</td>
+            <td style="border-left: 2px solid darkgray;">{{ trainer[0] }} ({{ trainer[1] }})</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+
+{% endblock  %}

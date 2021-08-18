@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+
+{% block alert %}
+{% if alert_msg %}
+<div class="alert alert-{{ alert_msg.type }}" role="alert">
+  {{ alert_msg.msg }}
+</div>
+{% endif %}
+{% endblock %}
+
+{% block title %}
+Member List
+{% endblock %}
+
+{% block lead %}
+회원 추가, 수정 및 삭제하는 페이지입니다.
+{% endblock %}
+
+{% block main_body %}
+<form method="POST" action="/api/member">
+  <div class="input-group mb-3">
+    <span class="input-group-text" id="basic-addon1">회원 정보</span>
+    <input name="id" class="form-control" type="number" placeholder="회원 번호" required>
+    <input name="age" class="form-control" type="number" min='0' max='100' placeholder="나이" required>
+    <select name="sex" class="form-control" id="inputGroupSelect01">
+      <option value=1>남성</option>
+      <option value=2>여성</option>
+    </select>
+  </div>
+  <div class="input-group mb-3">
+    <span class="input-group-text" id="basic-addon1">자기 평가</span>
+    <input name="real" class="form-control" type="number" min='0' max='100' placeholder="Realist" required>
+    <input name="roman" class="form-control" type="number" min='0' max='100' placeholder="Romantist" required>
+    <input name="human" class="form-control" type="number" min='0' max='100' placeholder="Humanist" required>
+    <input name="ideal" class="form-control" type="number" min='0' max='100' placeholder="Idealist" required>
+    <input name="agent" class="form-control" type="number" min='0' max='100' placeholder="Agent" required>
+  </div>
+  <div class="input-group mb-3">
+    <span class="input-group-text" id="basic-addon1">타인 평가</span>
+    <input name="relation" class="form-control" type="number" min='0' max='100' placeholder="Relation" required>
+    <input name="trust" class="form-control" type="number" min='0' max='100' placeholder="Trust" required>
+    <input name="manual" class="form-control" type="number" min='0' max='100' placeholder="Manual" required>
+    <input name="confidence" class="form-control" type="number" min='0' max='100' placeholder="confidence" required>
+    <input name="culture" class="form-control" type="number" min='0' max='100' placeholder="Culture" required>
+  </div>
+  <input type="submit" class="btn btn-secondary" value="추가 및 수정">
+</form>
+
+
+{% if members %}
+<hr>
+<table class="table table-sm text-center table-hover" style="border-bottom: 1px solid darkgray;">
+  <caption>{{ (members.page -1) * members.per_page + 1}} - {{ members.page * members.per_page }} members in total {{ members.total }}</caption>
+  <thead class="table-secondary">
+    <tr>
+      <th scope="col">번호</th>
+      <th scope="col">성별</th>
+      <th scope="col">나이</th>
+      <th scope="col" style="border-left: 2px solid darkgray;">Real</th>
+      <th scope="col">Roman</th>
+      <th scope="col">Human</th>
+      <th scope="col">Ideal</th>
+      <th scope="col">Agent</th>
+      <th scope="col" style="border-left: 2px solid darkgray;">Relation</th>
+      <th scope="col">Trust</th>
+      <th scope="col">Manual</th>
+      <th scope="col">self</th>
+      <th scope="col">Culture</th>
+      <th scope="col" style="border-left: 2px solid darkgray;">🗑</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for member in members.items %}
+    <tr>
+      <th scope="row">{{ member.id }}</th>
+      {% if member.sex == 1 %}
+        <td>남성</td>
+      {% else %}
+        <td>여성</td>
+      {% endif %}
+      <td>{{ member.age }}</td>
+      <td style="border-left: 2px solid darkgray;">{{ member.real }}</td>
+      <td>{{ member.roman }}</td>
+      <td>{{ member.human }}</td>
+      <td>{{ member.ideal }}</td>
+      <td>{{ member.agent }}</td>
+      <td style="border-left: 2px solid darkgray;">{{ member.relation }}</td>
+      <td>{{ member.trust }}</td>
+      <td>{{ member.manual }}</td>
+      <td>{{ member.confidence }}</td>
+      <td>{{ member.culture }}</td>
+      <td style="border-left: 2px solid darkgray;">
+        <a class="btn btn-outline-dark btn-sm", href='/api/member/{{ member.id }}'>
+          Delete
+        </a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<!-- Pagination Links-->
+<div class="text-right">
+  <a href="{{ url_for('main.member_index', page=members.prev_num) }}"
+     class="btn btn-outline-dark 
+     {% if members.page == 1 %}disabled{% endif %}">
+      &laquo;
+  </a>
+<!-- Loop through the number of pages to display a link for each-->
+  {% for page_num in members.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+{% if page_num %}
+<!-- Check for the active page and set the link to "Active"-->
+          {% if members.page == page_num %}
+          <a href="{{ url_for('main.member_index', page=page_num) }}"
+             class="btn btn-dark">
+              {{ page_num }}
+          </a>
+          {% else %}
+          <a href="{{ url_for('main.member_index', page=page_num) }}"
+             class="btn btn-outline-dark">
+              {{ page_num }}
+          </a>
+          {% endif %}
+      {% else %}
+          ...
+      {% endif %}
+  {% endfor %}
+  <a href="{{ url_for('main.member_index', page=members.next_num) }}"
+     class="btn btn-outline-dark 
+     {% if members.page == members.pages %}disabled{% endif %}">
+      &raquo;
+  </a>
+</div>
+{% endif %}
+
+{% endblock %}
